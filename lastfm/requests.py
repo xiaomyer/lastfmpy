@@ -5,7 +5,7 @@ import exceptions
 URL = "http://ws.audioscrobbler.com/2.0"
 
 
-async def get(api, method, **kwargs):
+async def get(api: str, method: str, **kwargs) -> dict:
     parameters = "".join([f"&{key}={value}" for key, value in kwargs.items() if bool(value)])
     async with aiohttp.ClientSession() as session:
         json = await (
