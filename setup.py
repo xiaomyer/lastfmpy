@@ -22,19 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import aiohttp
-import exceptions
+import setuptools
 
+with open("README.md") as readme:
+    long_description = readme.read()
 
-URL = "http://ws.audioscrobbler.com/2.0"
-
-
-async def get(api: str, method: str, **kwargs) -> dict:
-    parameters = "".join([f"&{key}={value}" for key, value in kwargs.items() if bool(value)])
-    async with aiohttp.ClientSession() as session:
-        json = await (
-            await session.get(f"{URL}?method={method}{parameters}&api_key={api}&format=json")).json()
-    if bool(json.get("error")):
-        if json["error"] == 6:
-            raise exceptions.InvalidInput
-    return json
+setuptools.setup(
+    name="lastfmpy",
+    version="0.0.1",
+    author="Myer",
+    author_email="realmyerfire@gmail.com",
+    description="An API Wrapper for Last.FM",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/myerfire/lastfm.py",
+    packages=setuptools.find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
+)
