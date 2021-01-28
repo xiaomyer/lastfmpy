@@ -60,10 +60,10 @@ class Artist:
     def __init__(self, json: dict):
         self.name: str = json.get("name")
         self.image: list = [Image(image) for image in json.get("image", {})]
-        self.stats: Stats = Stats(json.get("stats"))
+        self.stats: Stats = Stats(json)
         self.tags: list = [Tag(tag) for tag in json.get("tags", {}).get("tag", {})]
         self.similar: list = [Artist(artist) for artist in json.get("similar", {}).get("artists", {})]
-        self.bio: Info = Info(json.get("bio"))
+        self.bio: Info = Info(json.get("bio", {}))
         self.url: str = json.get("url")
 
     def __str__(self):
@@ -72,8 +72,9 @@ class Artist:
 
 class Stats:
     def __init__(self, json: dict):
-        self.listeners: int = json.get("listeners")
-        self.playcount: int = json.get("playcount")
+        self.listeners: int = json.get("stats", {}).get("listeners") or json.get("listeners")
+        self.playcount: int = json.get("stats", {}).get("playcount") or json.get("playcount")
+        self.userplaycount: int = json.get("stats", {}).get("userplaycount") or json.get("userplaycount")
 
 
 class Image:
@@ -99,7 +100,17 @@ class Info:
         self.published: str = json.get("published")
 
 
-class Search:
+class SearchPage:
     def __init__(self, json: dict, object_, string: str):
         self.results: int = json.get("opensearch:totalResults")
-        self.matches = [object_(item) for item in json.get(string)]
+        self.matches = self.items = [object_(item) for item in json.get(string + "matches", {}).get(string)]
+        # lastfm api weird
+
+
+class TopObjectPage:
+    def __init__(self, json: dict, object_, string: str):
+        self.results = self.items = self.matches = [object_(item) for item in json.get(string)]
+        self.page: int = json.get("@attr").get("page")
+        self.per_page: int = json.get("@attr").get("perPage")
+        self.pages: int = json.get("@attr").get("totalPages")
+        self.total: int = json.get("@attr").get("total")

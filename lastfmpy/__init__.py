@@ -22,19 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import aiohttp
-from . import exceptions
+__title__ = "lastfmpy"
+__author__ = "myerfire"
+__license__ = "MIT"
+__version__ = "0.0.3"
 
-
-URL = "http://ws.audioscrobbler.com/2.0"
-
-
-async def get(api: str, method: str, **kwargs) -> dict:
-    parameters = "".join([f"&{key}={value}" for key, value in kwargs.items() if bool(value)])
-    async with aiohttp.ClientSession() as session:
-        json = await (
-            await session.get(f"{URL}?method={method}{parameters}&api_key={api}&format=json")).json()
-    if bool(json.get("error")):
-        if json["error"] == 6:
-            raise exceptions.InvalidInput
-    return json
+from .exceptions import *
+from .client import LastFM
+from .objects import *

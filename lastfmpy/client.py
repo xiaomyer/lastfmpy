@@ -31,6 +31,7 @@ class LastFMClient:
         self.api = api
         self.album = Album(api)
         self.artist = Artist(api)
+        self.chart = Chart(api)
 
 
 async def LastFM(api: str) -> LastFMClient:
@@ -52,9 +53,9 @@ class Album:
                                  username=username)
         return [objects.Tag(tag) for tag in json["toptags"]["tag"]]
 
-    async def search(self, album: str, *, limit: int = 0, page: int = 0) -> objects.Search:
+    async def search(self, album: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
         json = await request.get(self.api, "album.search", album=album, limit=limit, page=page)
-        return objects.Search(json["results"], objects.Album, "albummatches")
+        return objects.SearchPage(json["results"], objects.Album, "albummatches")
 
 
 class Artist:
@@ -81,13 +82,56 @@ class Artist:
 
     async def get_top_tags(self, artist: str, *, autocorrect: bool = False) -> list:
         json = await request.get(self.api, "artist.gettoptags", artist=artist, autocorrect=autocorrect)
-        return [objects.Tag(track) for track in json["toptags"]["tag"]]
+        return [objects.Tag(tag) for tag in json["toptags"]["tag"]]
 
     async def get_top_tracks(self, artist: str, *, autocorrect: bool = False, limit: int = 0, page: int = 0) -> list:
         json = await request.get(self.api, "artist.gettoptracks", artist=artist, limit=limit, page=page,
                                  autocorrect=autocorrect)
         return [objects.Track(track) for track in json["toptracks"]["track"]]
 
-    async def search(self, artist: str, *, limit: int = 0, page: int = 0) -> objects.Search:
+    async def search(self, artist: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
         json = await request.get(self.api, "artist.search", artist=artist, limit=limit, page=page)
-        return objects.Search(json["results"], objects.Artist, "artistmatches")
+        return objects.SearchPage(json["results"], objects.Artist, "artist")
+
+
+class Chart:
+    def __init__(self, api):
+        self.api = api
+
+    async def get_top_artists(self, *, page: int = 0, limit: int = 0):
+        json = await request.get(self.api, "chart.gettopartists", limit=limit, page=page)
+        return objects.TopObjectPage(json["artists"], objects.Artist, "artist")
+
+    async def get_top_tags(self, *, page: int = 0, limit: int = 0):
+        json = await request.get(self.api, "chart.gettoptags", limit=limit, page=page)
+        return objects.TopObjectPage(json["tags"], objects.Tag, "tag")
+
+    async def get_top_tracks(self, *, page: int = 0, limit: int = 0):
+        json = await request.get(self.api, "chart.gettoptracks", limit=limit, page=page)
+        return objects.TopObjectPage(json["tracks"], objects.Tag, "track")
+
+
+class Track:
+    def __init__(self, api):
+        self.api = api
+
+    async def get_info(self, track: str, *, autocorrect: bool = False, username: str = None) -> objects.Track:
+        json = await request.get(self.api, "track.getinfo", track=track, autocorrect=autocorrect,
+                                 username=username)
+        return objects.Track(json["track"])
+
+    async def get_correction(self, track: str) -> objects.Track:
+        json = await request.get(self.api, "track.getcorrection", track=track)
+        return objects.Track(json["track"])
+
+    async def get_similar(self, track: str, *, autocorrect: bool = False, limit: int = 0) -> list:
+        json = await request.get(self.api, "track.getsimilar", track=track, limit=limit, autocorrect=autocorrect)
+        return [objects.Track(track) for track in json["similartracks"]["track"]]
+
+    async def get_top_tags(self, track: str, *, autocorrect: bool = False) -> list:
+        json = await request.get(self.api, "track.gettoptags", track=track, autocorrect=autocorrect)
+        return [objects.Tag(tag) for tag in json["toptags"]["tag"]]
+
+    async def search(self, track: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
+        json = await request.get(self.api, "track.search", track=track, limit=limit, page=page)
+        return objects.SearchPage(json["results"], objects.Track, "track")

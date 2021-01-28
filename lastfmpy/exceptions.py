@@ -23,5 +23,24 @@ SOFTWARE.
 """
 
 
-class InvalidInput(Exception):
-    pass
+class InvalidInputError(Exception):
+    """
+    The exception raised when a request to the API resulted in nothing being found
+    """
+    def __init__(self, message):
+        self.message = message
+
+
+class ServiceOfflineError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class TemporaryError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class RatelimitExceededError(Exception):
+    def __init__(self, message):
+        self.message = message
