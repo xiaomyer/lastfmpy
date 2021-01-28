@@ -124,7 +124,7 @@ class ObjectPage:
 
 class User:
     def __init__(self, json: dict):
-        self.username: str = json.get("name")
+        self.name = self.username = json.get("name")
         self.real_name: str = json.get("realname")
         self.url: str = json.get("url")
         self.image: list = [Image(image) for image in json.get("image", {})]

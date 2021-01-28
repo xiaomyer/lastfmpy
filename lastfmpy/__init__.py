@@ -25,7 +25,7 @@ SOFTWARE.
 __title__ = "lastfmpy"
 __author__ = "myerfire"
 __license__ = "MIT"
-__version__ = "0.0.5"
+__version__ = "0.0.7"
 
 from .exceptions import *
 from .client import LastFM
