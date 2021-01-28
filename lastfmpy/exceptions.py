@@ -25,6 +25,7 @@ SOFTWARE.
 
 class InvalidInputError(Exception):
     """
+    API error code 6
     The exception raised when a request to the API resulted in nothing being found
     """
     def __init__(self, message):
@@ -32,11 +33,19 @@ class InvalidInputError(Exception):
 
 
 class ServiceOfflineError(Exception):
+    """
+    API error code 11
+    The exception raised when a request to the API errored because the service was offline
+    """
     def __init__(self, message):
         self.message = message
 
 
 class TemporaryError(Exception):
+    """
+    API error code 29
+    The exception raised when a request to the API errored because the service was temporarily unavailable
+    """
     def __init__(self, message):
         self.message = message
 

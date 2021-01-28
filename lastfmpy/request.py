@@ -30,6 +30,13 @@ URL = "http://ws.audioscrobbler.com/2.0"
 
 
 async def get(api: str, method: str, **kwargs) -> dict:
+    """
+    Sends a get request to the last.fm API
+    :param api: API key
+    :param method: last.fm API method
+    :param kwargs: Will be converted to HTTP attributes (&key=value)
+    :return: dict (JSON) of the API response
+    """
     parameters = "".join([f"&{key}={value}" for key, value in kwargs.items() if bool(value)])
     if kwargs.get("from_"):  # keywords go brr
         parameters += f"&from={kwargs.get('from_')}"

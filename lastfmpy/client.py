@@ -27,6 +27,8 @@ from . import objects
 
 
 class LastFMClient:
+    """Main class that contains features for all the endpoints of the last.fm API that do not require authentication"""
+
     def __init__(self, api: str):
         self.api = api
         self.album = self.albums = Album(api)
@@ -37,61 +39,142 @@ class LastFMClient:
 
 
 async def LastFM(api: str) -> LastFMClient:
+    """Class factory for LastFMClient objects
+    TODO: Implement an API key check as a method of the client class and invoke it in this function"""
     return LastFMClient(api)
 
 
 class Album:
+    """The features of the API in the album method"""
+
     def __init__(self, api):
         self.api = api
 
     async def get_info(self, artist: str, album: str, *, autocorrect: bool = False,
                        username: str = None) -> objects.Album:
+        """
+        Gets relevant information of an album from an artist and album name
+        :param artist: Artist name
+        :param album: Album name
+        :param autocorrect: Whether the request should autocorrect errors in name
+        :param username: The username to fetch relevant information about the album for (amount of plays, etc)
+        :return: lastfmpy.Album
+        """
         json = await request.get(self.api, "album.getinfo", artist=artist, album=album, autocorrect=autocorrect,
                                  username=username)
         return objects.Album(json["album"])
 
     async def get_top_tags(self, artist: str, album: str, *, autocorrect: bool = False, username: str = None) -> list:
+        """
+        Get top overall tags of an album from an artist and album name
+        :param artist: Artist name
+        :param album: Album name
+        :param autocorrect: Whether the request should autocorrect errors in name
+        :param username: The username to fetch relevant information about the album for (amount of plays, etc)
+        :return: list of lastfmpy.Tag
+        """
         json = await request.get(self.api, "album.gettoptags", artist=artist, album=album, autocorrect=autocorrect,
                                  username=username)
         return [objects.Tag(tag) for tag in json["toptags"]["tag"]]
 
     async def search(self, album: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
+        """
+        Searches for an album based on a string
+        :param album: Album to search for
+        :param limit: Amount of search results to retrieve
+        :param page: Page of search results
+        :return: lastfmpy.SearchPage
+        """
         json = await request.get(self.api, "album.search", album=album, limit=limit, page=page)
         return objects.SearchPage(json["results"], objects.Album, "albummatches")
 
 
 class Artist:
     def __init__(self, api):
+        """
+        Wrapper on the artist endpoint of the last.fm API
+        :param api:
+        """
         self.api = api
 
     async def get_info(self, artist: str, *, autocorrect: bool = False, username: str = None) -> objects.Artist:
+        """
+        Gets relevant information of an artist from an artist name
+        :param artist: Artist name
+        :param autocorrect: Whether to autocorrect the artist name
+        :param username: The username to fetch relevant information about the album for (amount of plays, etc)
+        :return: lastfmpy.Artist
+        """
         json = await request.get(self.api, "artist.getinfo", artist=artist, autocorrect=autocorrect,
                                  username=username)
         return objects.Artist(json["artist"])
 
     async def get_correction(self, artist: str) -> objects.Artist:
+        """
+        Gets the correction of an artist name
+        :param artist: Artist name
+        :return: objects.Artist
+        """
         json = await request.get(self.api, "artist.getcorrection", artist=artist)
         return objects.Artist(json["artist"])
 
     async def get_similar(self, artist: str, *, autocorrect: bool = False, limit: int = 0) -> list:
+        """
+        Gets similar artists
+        :param artist: Artist name
+        :param autocorrect: Whether to autocorrect the artist name
+        :param limit: Amount of similar artists to get
+        :return: list of objects.Artist
+        """
         json = await request.get(self.api, "artist.getsimilar", artist=artist, limit=limit, autocorrect=autocorrect)
-        return [objects.Track(track) for track in json["similarartists"]["artist"]]
+        return [objects.Artist(artist) for artist in json["similarartists"]["artist"]]
 
-    async def get_top_albums(self, artist: str, *, autocorrect: bool = False, limit: int = 0, page: int = 0) -> list:
+    async def get_top_albums(self, artist: str, *, autocorrect: bool = False, limit: int = 0,
+                             page: int = 0) -> objects.ObjectPage:
+        """
+        Gets the artist's top albums
+        :param artist: Artist name
+        :param autocorrect: Whether to autocorrect the artist name
+        :param limit: Amount of albums to get
+        :param page: Page of the search
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "artist.gettopalbums", artist=artist, limit=limit, page=page,
                                  autocorrect=autocorrect)
-        return [objects.Track(track) for track in json["topalbums"]["album"]]
+        return objects.ObjectPage(json["topalbums"], objects.Album, "album")
 
-    async def get_top_tags(self, artist: str, *, autocorrect: bool = False) -> list:
+    async def get_top_tags(self, artist: str, *, autocorrect: bool = False) -> objects.ObjectPage:
+        """
+        Gets the artist's top tags
+        :param artist: Artist name
+        :param autocorrect: Whether to autocorrect the artist name
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "artist.gettoptags", artist=artist, autocorrect=autocorrect)
-        return [objects.Tag(tag) for tag in json["toptags"]["tag"]]
+        return objects.ObjectPage(json["toptags"], objects.Tag, "tag")
 
-    async def get_top_tracks(self, artist: str, *, autocorrect: bool = False, limit: int = 0, page: int = 0) -> list:
+    async def get_top_tracks(self, artist: str, *, autocorrect: bool = False, limit: int = 0,
+                             page: int = 0) -> objects.ObjectPage:
+        """
+        Gets the artist's top tracks
+        :param artist: Artist name
+        :param autocorrect: Whether to autocorrect the artist name
+        :param limit: Amount of tracks to get
+        :param page: Page of the search
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "artist.gettoptracks", artist=artist, limit=limit, page=page,
                                  autocorrect=autocorrect)
-        return [objects.Track(track) for track in json["toptracks"]["track"]]
+        return objects.ObjectPage(json["toptracks"], objects.Track, "track")
 
     async def search(self, artist: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
+        """
+        Searches for an artist based off a string
+        :param artist: Artist name
+        :param limit: Amount of artists to get
+        :param page: Page of the search
+        :return: objects.SearchPage
+        """
         json = await request.get(self.api, "artist.search", artist=artist, limit=limit, page=page)
         return objects.SearchPage(json["results"], objects.Artist, "artist")
 
@@ -110,7 +193,7 @@ class Chart:
 
     async def get_top_tracks(self, *, page: int = 0, limit: int = 0):
         json = await request.get(self.api, "chart.gettoptracks", limit=limit, page=page)
-        return objects.ObjectPage(json["tracks"], objects.Tag, "track")
+        return objects.ObjectPage(json["tracks"], objects.Track, "track")
 
 
 class Track:
@@ -159,7 +242,7 @@ class User:
 
     async def get_recent_tracks(self, user: str, *, limit: int = 0, page: int = 0, from_: int = 0,
                                 extended: bool = False, to: int = 0) -> objects.ObjectPage:
-        json = await request.get(self.api, "user.getrecenttracks", user=user, limit=limit, page=page, from_ = from_,
+        json = await request.get(self.api, "user.getrecenttracks", user=user, limit=limit, page=page, from_=from_,
                                  extended=extended, to=to)
         return objects.ObjectPage(json["recenttracks"], objects.Track, "track")
 
