@@ -29,9 +29,10 @@ from . import objects
 class LastFMClient:
     def __init__(self, api: str):
         self.api = api
-        self.album = Album(api)
-        self.artist = Artist(api)
-        self.chart = Chart(api)
+        self.album = self.albums = Album(api)
+        self.artist = self.artists = Artist(api)
+        self.chart = self.charts = Chart(api)
+        self.track = self.tracks = Track(api)
 
 
 async def LastFM(api: str) -> LastFMClient:
