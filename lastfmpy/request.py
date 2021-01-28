@@ -31,9 +31,10 @@ URL = "http://ws.audioscrobbler.com/2.0"
 
 async def get(api: str, method: str, **kwargs) -> dict:
     parameters = "".join([f"&{key}={value}" for key, value in kwargs.items() if bool(value)])
-    async with aiohttp.ClientSession() as session:
-        json = await (
-            await session.get(f"{URL}?method={method}{parameters}&api_key={api}&format=json")).json()
+    if kwargs.get("from_"):  # keywords go brr
+        parameters += f"&from={kwargs.get('from_')}"
+    async with aiohttp.request("GET", f"{URL}?method={method}{parameters}&api_key={api}&format=json") as response:
+        json = await response.json()
     if bool(json.get("error")):
         if json["error"] == 6:
             raise exceptions.InvalidInputError(json["message"])

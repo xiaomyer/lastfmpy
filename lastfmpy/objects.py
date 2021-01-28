@@ -27,14 +27,14 @@ from datetime import datetime
 
 class Album:
     def __init__(self, json: dict):
-        self.name = json.get("name")
-        self.artist = json.get("artist")
+        self.name = json.get("name") or json.get("#text")
+        self.artist = Artist(json.get("artist")) if isinstance(json.get("artist"), dict) else json.get("artist")
         self.releasedate = json.get("releasedate")  # TODO: figure out the format of this and make it a datetime object
         self.image = [Image(image) for image in json.get("image", {})]
         self.stats = Stats(json)
         self.toptags = [Tag(tag) for tag in json.get("tags", {}).get("tag", {})]
         self.tracks = [Track(track) for track in json.get("tracks", {}).get("track", {})]
-        self.wiki = Info(json.get("wiki"))
+        self.wiki = Info(json.get("wiki", {}))
         self.url = json.get("url")
 
     def __str__(self):
@@ -44,12 +44,15 @@ class Album:
 class Track:
     def __init__(self, json: dict):
         self.name: str = json.get("name")
-        self.artist: str = json.get("artist")
+        self.artist = Artist(json.get("artist")) if isinstance(json.get("artist"), dict) else json.get("artist")
+        self.album = Album(json.get("album", {}))
         self.duration: int = json.get("duration")
         self.releasedate: str = json.get("release_date")  # see above
         self.image: list = [Image(image) for image in json.get("image", {})]
         self.stats: Stats = Stats(json)
         self.toptags: list = [Tag(tag) for tag in json.get("tags", {}).get("tag", {})]
+        self.playing = self.now_playing = True if json.get("@attr", {}).get("nowplaying") == "true" else False
+        self.played = datetime.utcfromtimestamp(int(json.get("date", {}).get("uts", 0)))
         self.url: str = json.get("url")
 
     def __str__(self):
@@ -58,7 +61,7 @@ class Track:
 
 class Artist:
     def __init__(self, json: dict):
-        self.name: str = json.get("name")
+        self.name: str = json.get("name") or json.get("#text")
         self.image: list = [Image(image) for image in json.get("image", {})]
         self.stats: Stats = Stats(json)
         self.tags: list = [Tag(tag) for tag in json.get("tags", {}).get("tag", {})]
@@ -74,7 +77,8 @@ class Stats:
     def __init__(self, json: dict):
         self.listeners: int = json.get("stats", {}).get("listeners") or json.get("listeners")
         self.playcount: int = json.get("stats", {}).get("playcount") or json.get("playcount")
-        self.userplaycount: int = json.get("stats", {}).get("userplaycount") or json.get("userplaycount")
+        self.userplaycount: int = json.get("stats", {}).get("userplaycount") or json.get("userplaycount") or json.get("playcount")
+        # inconsistent api!
 
 
 class Image:
@@ -107,10 +111,27 @@ class SearchPage:
         # lastfm api weird
 
 
-class TopObjectPage:
+class ObjectPage:
     def __init__(self, json: dict, object_, string: str):
         self.results = self.items = self.matches = [object_(item) for item in json.get(string)]
         self.page: int = json.get("@attr").get("page")
         self.per_page: int = json.get("@attr").get("perPage")
         self.pages: int = json.get("@attr").get("totalPages")
         self.total: int = json.get("@attr").get("total")
+        self.from_ = datetime.utcfromtimestamp(int(json.get("@attr", {}).get("from", 0)))
+        self.to = datetime.utcfromtimestamp(int(json.get("@attr", {}).get("to", 0)))
+
+
+class User:
+    def __init__(self, json: dict):
+        self.username: str = json.get("name")
+        self.real_name: str = json.get("realname")
+        self.url: str = json.get("url")
+        self.image: list = [Image(image) for image in json.get("image", {})]
+        self.country = json.get("country") if json.get("country") != "None" else None
+        # yes for our json api was should make none be expressed as a string and not as null
+        self.age: int = json.get("age")
+        self.playcount = self.scrobbles = json.get("playcount")
+        self.playlists: int = json.get("playlists")
+        self.bootstrap: int = json.get("bootstrap")  # no clue what this is
+        self.registered = self.created_at = datetime.utcfromtimestamp(int(json.get("registered", {}).get("unixtime", 0)))

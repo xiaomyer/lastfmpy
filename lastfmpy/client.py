@@ -33,6 +33,7 @@ class LastFMClient:
         self.artist = self.artists = Artist(api)
         self.chart = self.charts = Chart(api)
         self.track = self.tracks = Track(api)
+        self.user = self.users = User(api)
 
 
 async def LastFM(api: str) -> LastFMClient:
@@ -101,15 +102,15 @@ class Chart:
 
     async def get_top_artists(self, *, page: int = 0, limit: int = 0):
         json = await request.get(self.api, "chart.gettopartists", limit=limit, page=page)
-        return objects.TopObjectPage(json["artists"], objects.Artist, "artist")
+        return objects.ObjectPage(json["artists"], objects.Artist, "artist")
 
     async def get_top_tags(self, *, page: int = 0, limit: int = 0):
         json = await request.get(self.api, "chart.gettoptags", limit=limit, page=page)
-        return objects.TopObjectPage(json["tags"], objects.Tag, "tag")
+        return objects.ObjectPage(json["tags"], objects.Tag, "tag")
 
     async def get_top_tracks(self, *, page: int = 0, limit: int = 0):
         json = await request.get(self.api, "chart.gettoptracks", limit=limit, page=page)
-        return objects.TopObjectPage(json["tracks"], objects.Tag, "track")
+        return objects.ObjectPage(json["tracks"], objects.Tag, "track")
 
 
 class Track:
@@ -136,3 +137,56 @@ class Track:
     async def search(self, track: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
         json = await request.get(self.api, "track.search", track=track, limit=limit, page=page)
         return objects.SearchPage(json["results"], objects.Track, "track")
+
+
+class User:
+    def __init__(self, api):
+        self.api = api
+
+    async def get_info(self, user: str) -> objects.User:
+        json = await request.get(self.api, "user.getinfo", user=user)
+        return objects.User(json["user"])
+
+    async def get_friends(self, user: str, *, recenttracks: bool = False, limit: int = 0,
+                          page: int = 0) -> objects.ObjectPage:
+        json = await request.get(self.api, "user.getfriends", user=user, recenttracks=recenttracks, limit=limit,
+                                 page=page)
+        return objects.ObjectPage(json["friends"], objects.User, "user")
+
+    async def get_loved_tracks(self, user: str, *, limit: int = 0, page: int = 0) -> objects.ObjectPage:
+        json = await request.get(self.api, "user.getlovedtracks", user=user, limit=limit, page=page)
+        return objects.ObjectPage(json["lovedtracks"], objects.Track, "track")
+
+    async def get_recent_tracks(self, user: str, *, limit: int = 0, page: int = 0, from_: int = 0,
+                                extended: bool = False, to: int = 0) -> objects.ObjectPage:
+        json = await request.get(self.api, "user.getrecenttracks", user=user, limit=limit, page=page, from_ = from_,
+                                 extended=extended, to=to)
+        return objects.ObjectPage(json["recenttracks"], objects.Track, "track")
+
+    async def get_top_albums(self, user: str, *, period: str = None, limit: int = 0, page: int = 0):
+        json = await request.get(self.api, "user.gettopalbums", user=user, limit=limit, page=page, period=period)
+        return objects.ObjectPage(json["topalbums"], objects.Album, "album")
+
+    async def get_top_artists(self, user: str, *, period: str = None, limit: int = 0, page: int = 0):
+        json = await request.get(self.api, "user.gettopartists", user=user, limit=limit, page=page, period=period)
+        return objects.ObjectPage(json["topartists"], objects.Artist, "artist")
+
+    async def get_top_tags(self, user: str, *, limit: int = 0):
+        json = await request.get(self.api, "user.gettoptags", user=user, limit=limit)
+        return objects.ObjectPage(json["toptags"], objects.Tag, "tag")
+
+    async def get_top_tracks(self, user: str, *, period: str = None, limit: int = 0, page: int = 0):
+        json = await request.get(self.api, "user.gettoptracks", user=user, limit=limit, page=page, period=period)
+        return objects.ObjectPage(json["toptracks"], objects.Track, "track")
+
+    async def get_weekly_album_chart(self, user: str, *, from_: str = None, to: str = None):
+        json = await request.get(self.api, "user.getweeklyalbumchart", user=user, from_=from_, to=to)
+        return objects.ObjectPage(json["weeklyalbumchart"], objects.Album, "album")
+
+    async def get_weekly_artist_chart(self, user: str, *, from_: str = None, to: str = None):
+        json = await request.get(self.api, "user.getweeklyartistchart", user=user, from_=from_, to=to)
+        return objects.ObjectPage(json["weeklyartistchart"], objects.Artist, "artist")
+
+    async def get_weekly_track_chart(self, user: str, *, from_: str = None, to: str = None):
+        json = await request.get(self.api, "user.getweeklytrackchart", user=user, from_=from_, to=to)
+        return objects.ObjectPage(json["weeklytrackchart"], objects.Track, "track")
