@@ -17,9 +17,9 @@ This library is an async wrapper for the [last.fm API](https://last.fm/api).
 `python -m pip install -U lastfmpy`
 
 ## Documentation
-There are relevant docstrings on the functions of the main wrapper class
-Object attribute documentation may (?) be worked on but the code in [objects.py](https://github.com/MyerFire/lastfmpy/blob/master/lastfmpy/objects.py) is easily readable.
-There is no API method for a user's currently playing song. The way to get the currently playing song of a user is to request recent tracks and check whether the first index of the list has the attribute `playing` set to true.
+- There are relevant docstrings on the functions of the main wrapper class.
+- Object attribute documentation may (?) be worked on but the code in [objects.py](https://github.com/MyerFire/lastfmpy/blob/master/lastfmpy/objects.py) is easily readable.
+- There is no API method for a user's currently playing song. The way to get the currently playing song of a user is to request recent tracks and check whether the first index of the list has the attribute `playing` set to true.
 
 ## Quick Start
 ```python
