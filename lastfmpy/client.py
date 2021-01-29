@@ -172,7 +172,7 @@ class Artist:
         Searches for an artist based off a string
         :param artist: Artist name
         :param limit: Amount of artists to get
-        :param page: Page of the search
+        :param page:
         :return: objects.SearchPage
         """
         json = await request.get(self.api, "artist.search", artist=artist, limit=limit, page=page)
@@ -184,14 +184,32 @@ class Chart:
         self.api = api
 
     async def get_top_artists(self, *, page: int = 0, limit: int = 0):
+        """
+        Gets the overall top artists
+        :param page: Page of the chart
+        :param limit: Amount of artists to get
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "chart.gettopartists", limit=limit, page=page)
         return objects.ObjectPage(json["artists"], objects.Artist, "artist")
 
     async def get_top_tags(self, *, page: int = 0, limit: int = 0):
+        """
+        Gets the overall top tags
+        :param page: Page of the chart
+        :param limit: Amount of tags to get
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "chart.gettoptags", limit=limit, page=page)
         return objects.ObjectPage(json["tags"], objects.Tag, "tag")
 
     async def get_top_tracks(self, *, page: int = 0, limit: int = 0):
+        """
+        Gets the overall top tracks
+        :param page: Page of the chart
+        :param limit: Amount of tracks to get
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "chart.gettoptracks", limit=limit, page=page)
         return objects.ObjectPage(json["tracks"], objects.Track, "track")
 
@@ -201,23 +219,55 @@ class Track:
         self.api = api
 
     async def get_info(self, track: str, *, autocorrect: bool = False, username: str = None) -> objects.Track:
+        """
+        Gets relevant information about a track from a track name
+        :param track: Track name
+        :param autocorrect: Whether the request should autocorrect errors in name
+        :param username: The username to fetch relevant information about the album for (amount of plays, etc)
+        :return: objects.Track
+        """
         json = await request.get(self.api, "track.getinfo", track=track, autocorrect=autocorrect,
                                  username=username)
         return objects.Track(json["track"])
 
     async def get_correction(self, track: str) -> objects.Track:
+        """
+        Gets the correction of an artist name
+        :param track: Track name
+        :return: objects.Track
+        """
         json = await request.get(self.api, "track.getcorrection", track=track)
         return objects.Track(json["track"])
 
     async def get_similar(self, track: str, *, autocorrect: bool = False, limit: int = 0) -> list:
+        """
+        Gets similar tracks from a track name
+        :param track: Track name
+        :param autocorrect: Whether the request should autocorrect errors in name
+        :param limit: The amount of similar tracks to get
+        :return: list of objects.Track
+        """
         json = await request.get(self.api, "track.getsimilar", track=track, limit=limit, autocorrect=autocorrect)
         return [objects.Track(track) for track in json["similartracks"]["track"]]
 
     async def get_top_tags(self, track: str, *, autocorrect: bool = False) -> list:
+        """
+        Gets top tags of a track
+        :param track: Track name
+        :param autocorrect: Whether the request should autocorrect errors in name
+        :return: list of objects.Tag
+        """
         json = await request.get(self.api, "track.gettoptags", track=track, autocorrect=autocorrect)
         return [objects.Tag(tag) for tag in json["toptags"]["tag"]]
 
     async def search(self, track: str, *, limit: int = 0, page: int = 0) -> objects.SearchPage:
+        """
+        Searches for a track based on a string
+        :param track: Track to search for
+        :param limit: Amount of tracks to get
+        :param page: Page of the search
+        :return: objects.SearchPage
+        """
         json = await request.get(self.api, "track.search", track=track, limit=limit, page=page)
         return objects.SearchPage(json["results"], objects.Track, "track")
 
@@ -227,21 +277,51 @@ class User:
         self.api = api
 
     async def get_info(self, user: str) -> objects.User:
+        """
+        Gets relevant information about a user based on a username
+        :param user: Username of a user
+        :return: objects.User
+        """
         json = await request.get(self.api, "user.getinfo", user=user)
         return objects.User(json["user"])
 
     async def get_friends(self, user: str, *, recenttracks: bool = False, limit: int = 0,
                           page: int = 0) -> objects.ObjectPage:
+        """
+        Gets friends of a user
+        :param user: Username of a user
+        :param recenttracks: Whether to get the recent tracks of the user's friends
+        :param limit: The amount of friends to get
+        :param page: The page of friends
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "user.getfriends", user=user, recenttracks=recenttracks, limit=limit,
                                  page=page)
         return objects.ObjectPage(json["friends"], objects.User, "user")
 
     async def get_loved_tracks(self, user: str, *, limit: int = 0, page: int = 0) -> objects.ObjectPage:
+        """
+        Gets the loved tracks of a user
+        :param user: Username of a user
+        :param limit: The amount of loved tracks to get
+        :param page: The page of loved tracks
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "user.getlovedtracks", user=user, limit=limit, page=page)
         return objects.ObjectPage(json["lovedtracks"], objects.Track, "track")
 
     async def get_recent_tracks(self, user: str, *, limit: int = 0, page: int = 0, from_: int = 0,
                                 extended: bool = False, to: int = 0) -> objects.ObjectPage:
+        """
+        Get recent tracks of a user
+        :param user: Username of a user
+        :param limit: Amount of recent tracks to get
+        :param page: Page of recent tracks to get
+        :param from_: UNIX timestamp of beginning of timespan
+        :param extended: Whether to get extended track information
+        :param to: UNIX timestamp of end of timespan
+        :return: objects.ObjectPage
+        """
         json = await request.get(self.api, "user.getrecenttracks", user=user, limit=limit, page=page, from_=from_,
                                  extended=extended, to=to)
         return objects.ObjectPage(json["recenttracks"], objects.Track, "track")
