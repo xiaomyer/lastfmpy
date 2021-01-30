@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from . import request
 from . import objects
+from . import request
 
 
 class LastFMClient:
@@ -50,17 +50,19 @@ class Album:
     def __init__(self, api):
         self.api = api
 
-    async def get_info(self, artist: str, album: str, *, autocorrect: bool = False,
+    async def get_info(self, artist: str = None, album: str = None, mbid: str = None, *, autocorrect: bool = False,
                        username: str = None) -> objects.Album:
         """
         Gets relevant information of an album from an artist and album name
         :param artist: Artist name
         :param album: Album name
+        :param mbid:
         :param autocorrect: Whether the request should autocorrect errors in name
         :param username: The username to fetch relevant information about the album for (amount of plays, etc)
         :return: lastfmpy.Album
         """
-        json = await request.get(self.api, "album.getinfo", artist=artist, album=album, autocorrect=autocorrect,
+        json = await request.get(self.api, "album.getinfo", artist=artist, album=album, mbid=mbid,
+                                 autocorrect=autocorrect,
                                  username=username)
         return objects.Album(json["album"])
 
@@ -218,42 +220,48 @@ class Track:
     def __init__(self, api):
         self.api = api
 
-    async def get_info(self, track: str, *, autocorrect: bool = False, username: str = None) -> objects.Track:
+    async def get_info(self, track: str, artist: str, *, autocorrect: bool = False,
+                       username: str = None) -> objects.Track:
         """
         Gets relevant information about a track from a track name
         :param track: Track name
+        :param artist: Artist name
         :param autocorrect: Whether the request should autocorrect errors in name
         :param username: The username to fetch relevant information about the album for (amount of plays, etc)
         :return: objects.Track
         """
-        json = await request.get(self.api, "track.getinfo", track=track, autocorrect=autocorrect,
+        json = await request.get(self.api, "track.getinfo", track=track, artist=artist, autocorrect=autocorrect,
                                  username=username)
         return objects.Track(json["track"])
 
-    async def get_correction(self, track: str) -> objects.Track:
+    async def get_correction(self, track: str, artist: str) -> objects.Track:
         """
         Gets the correction of an artist name
         :param track: Track name
+        :param artist: Artist name
         :return: objects.Track
         """
-        json = await request.get(self.api, "track.getcorrection", track=track)
+        json = await request.get(self.api, "track.getcorrection", track=track, artist=artist)
         return objects.Track(json["track"])
 
-    async def get_similar(self, track: str, *, autocorrect: bool = False, limit: int = 0) -> list:
+    async def get_similar(self, track: str, artist: str, *, autocorrect: bool = False, limit: int = 0) -> list:
         """
         Gets similar tracks from a track name
         :param track: Track name
+        :param artist: Artist name
         :param autocorrect: Whether the request should autocorrect errors in name
         :param limit: The amount of similar tracks to get
         :return: list of objects.Track
         """
-        json = await request.get(self.api, "track.getsimilar", track=track, limit=limit, autocorrect=autocorrect)
+        json = await request.get(self.api, "track.getsimilar", track=track, artist=artist, limit=limit,
+                                 autocorrect=autocorrect)
         return [objects.Track(track) for track in json["similartracks"]["track"]]
 
-    async def get_top_tags(self, track: str, *, autocorrect: bool = False) -> list:
+    async def get_top_tags(self, track: str, artist: str, *, autocorrect: bool = False) -> list:
         """
         Gets top tags of a track
         :param track: Track name
+        :param artist: Artist name
         :param autocorrect: Whether the request should autocorrect errors in name
         :return: list of objects.Tag
         """

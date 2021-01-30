@@ -29,7 +29,7 @@ with open("README.md") as readme:
 
 setuptools.setup(
     name="lastfmpy",
-    version="0.0.7",
+    version="1.0.5",
     author="Myer",
     author_email="realmyerfire@gmail.com",
     description="An API Wrapper for Last.FM",

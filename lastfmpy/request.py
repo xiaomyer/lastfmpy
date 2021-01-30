@@ -23,8 +23,8 @@ SOFTWARE.
 """
 
 import aiohttp
-from . import exceptions
 
+from . import exceptions
 
 URL = "http://ws.audioscrobbler.com/2.0"
 

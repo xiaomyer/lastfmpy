@@ -36,6 +36,7 @@ class Album:
         self.tracks = [Track(track) for track in json.get("tracks", {}).get("track", {})]
         self.wiki = Info(json.get("wiki", {}))
         self.url = json.get("url")
+        self.mbid = json.get("mbid")
 
     def __str__(self):
         return self.name
@@ -54,6 +55,7 @@ class Track:
         self.playing = self.now_playing = True if json.get("@attr", {}).get("nowplaying") == "true" else False
         self.played = datetime.utcfromtimestamp(int(json.get("date", {}).get("uts", 0)))
         self.url: str = json.get("url")
+        self.mbid = json.get("mbid")
 
     def __str__(self):
         return self.name
@@ -68,6 +70,7 @@ class Artist:
         self.similar: list = [Artist(artist) for artist in json.get("similar", {}).get("artists", {})]
         self.bio: Info = Info(json.get("bio", {}))
         self.url: str = json.get("url")
+        self.mbid = json.get("mbid")
 
     def __str__(self):
         return self.name
@@ -77,7 +80,8 @@ class Stats:
     def __init__(self, json: dict):
         self.listeners: int = json.get("stats", {}).get("listeners") or json.get("listeners")
         self.playcount: int = json.get("stats", {}).get("playcount") or json.get("playcount")
-        self.userplaycount: int = json.get("stats", {}).get("userplaycount") or json.get("userplaycount") or json.get("playcount")
+        self.userplaycount: int = json.get("stats", {}).get("userplaycount") or json.get("userplaycount") or json.get(
+            "playcount")
         # inconsistent api!
 
 
@@ -134,4 +138,5 @@ class User:
         self.playcount = self.scrobbles = json.get("playcount")
         self.playlists: int = json.get("playlists")
         self.bootstrap: int = json.get("bootstrap")  # no clue what this is
-        self.registered = self.created_at = datetime.utcfromtimestamp(int(json.get("registered", {}).get("unixtime", 0)))
+        self.registered = self.created_at = datetime.utcfromtimestamp(
+            int(json.get("registered", {}).get("unixtime", 0)))
