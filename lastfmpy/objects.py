@@ -78,11 +78,12 @@ class Artist:
 
 class Stats:
     def __init__(self, json: dict):
-        self.listeners: int = json.get("stats", {}).get("listeners") or json.get("listeners")
-        self.playcount: int = json.get("stats", {}).get("playcount") or json.get("playcount")
-        self.userplaycount: int = json.get("stats", {}).get("userplaycount") or json.get("userplaycount") or json.get(
-            "playcount")
+        self.listeners: int = int(json.get("stats", {}).get("listeners") or json.get("listeners", 0))
+        self.playcount: int = int(json.get("stats", {}).get("playcount") or json.get("playcount", 0))
+        self.userplaycount: int = int(json.get("stats", {}).get("userplaycount") or json.get("userplaycount") or json.get(
+            "playcount", 0))
         # inconsistent api!
+        # ALSO WHY AREN'T THE FUCKING NUMBERS JSON INTS PLEASE HELP
 
 
 class Image:
