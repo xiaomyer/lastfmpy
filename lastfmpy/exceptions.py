@@ -32,6 +32,22 @@ class InvalidInputError(Exception):
     def __init__(self, message):
         self.message = message
 
+    def __str__(self):
+        return self.message
+
+
+class OperationFailedError(Exception):
+    """
+    API error code 8
+    The exception raised when "Something else went wrong"
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
 
 class ServiceOfflineError(Exception):
     """
@@ -42,17 +58,43 @@ class ServiceOfflineError(Exception):
     def __init__(self, message):
         self.message = message
 
+    def __str__(self):
+        return self.message
+
 
 class TemporaryError(Exception):
     """
-    API error code 29
+    API error code 16
     The exception raised when a request to the API errored because the service was temporarily unavailable
     """
 
     def __init__(self, message):
         self.message = message
 
+    def __str__(self):
+        return self.message
 
-class RatelimitExceededError(Exception):
+
+class APIKeySuspendedError(Exception):
+    """
+    API error code 26
+    The exception when an API key has been suspended
+    Contact Last.FM to resolve
+    """
     def __init__(self, message):
         self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class RatelimitExceededError(Exception):
+    """
+    API error code 29
+    The exception raised when an IP has made too many requests in a short period
+    """
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message

@@ -45,8 +45,14 @@ async def get(api: str, method: str, **kwargs) -> dict:
     if bool(json.get("error")):
         if json["error"] == 6:
             raise exceptions.InvalidInputError(json["message"])
+        elif json["error"] == 8:
+            raise exceptions.OperationFailedError(json["message"])
         elif json["error"] == 11:
             raise exceptions.ServiceOfflineError(json["message"])
+        elif json["error"] == 16:
+            raise exceptions.TemporaryError(json["message"])
+        elif json["error"] == 26:
+            raise exceptions.APIKeySuspendedError(json["message"])
         elif json["error"] == 29:
             raise exceptions.RatelimitExceededError(json["message"])
     return json
