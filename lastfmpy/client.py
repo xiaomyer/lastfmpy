@@ -361,3 +361,9 @@ class User:
     async def get_weekly_track_chart(self, user: str, *, from_: str = None, to: str = None):
         json = await request.get(self.api, "user.getweeklytrackchart", user=user, from_=from_, to=to)
         return objects.ObjectPage(json["weeklytrackchart"], objects.Track, "track")
+
+    async def get_now_playing(self, user):
+        # NOT AN API METHOD
+        # this is kind of a utility function so you don't have to do this yourself
+        recent = await self.get_recent_tracks(user=user)
+        return recent.items[0] if recent.items[0].playing else None
