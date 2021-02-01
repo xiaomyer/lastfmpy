@@ -366,4 +366,8 @@ class User:
         # NOT AN API METHOD
         # this is kind of a utility function so you don't have to do this yourself
         recent = await self.get_recent_tracks(user=user)
-        return recent.items[0] if recent.items[0].playing else None
+        try:
+            now = recent.items[0]
+        except IndexError:
+            return
+        return now if now.playing else None
