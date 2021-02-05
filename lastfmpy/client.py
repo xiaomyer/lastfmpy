@@ -363,6 +363,11 @@ class User:
         return objects.ObjectPage(json["weeklytrackchart"], objects.Track, "track")
 
     async def get_now_playing(self, user):
+        """
+        Runs get_recent_tracks and returns the first track if the now_playing attribute is true
+        :param user:
+        :return:
+        """
         # NOT AN API METHOD
         # this is kind of a utility function so you don't have to do this yourself
         recent = await self.get_recent_tracks(user=user)
