@@ -40,8 +40,10 @@ class LastFMClient:
 
 async def LastFM(api: str) -> LastFMClient:
     """Class factory for LastFMClient objects
-    TODO: Implement an API key check as a method of the client class and invoke it in this function"""
-    return LastFMClient(api)
+    Checks if the API key is valid with an example call"""
+    client = LastFMClient(api)
+    _ = client.user.get_info("myerfire")
+    return client
 
 
 class Album:
